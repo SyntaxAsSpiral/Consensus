@@ -1,0 +1,53 @@
+---
+# Agent Path Legend
+# Single source of truth for all agent configuration paths
+# Recipes reference this instead of hardcoding paths
+
+agents:
+  kiro:
+    config_root: ~/.kiro/
+    steering: ~/.kiro/steering/
+    skills: ~/.kiro/skills/
+    project_steering: .kiro/steering/
+    project_agent_file: AGENTS.md
+    
+  claude:
+    config_root: ~/.claude/
+    agent_file: ~/.claude/CLAUDE.md
+    skills: ~/.claude/skills/
+    project_agent_file: CLAUDE.md
+    
+  codex:
+    config_root: ~/.codex/
+    agent_file: ~/.codex/AGENTS.md
+    skills: ~/.codex/skills/
+    project_agent_file: AGENTS.md
+    
+  cursor:
+    config_root: ~/.cursor/
+    agent_file: ~/.cursor/AGENTS.md
+    skills: ~/.cursor/skills/
+    project_agent_file: CLAUDE.md
+    
+  gemini-cli:
+    config_root: ~/.gemini/
+    agent_file: ~/.gemini/AGENTS.md
+    skills: ~/.gemini/skills/
+    project_agent_file: AGENTS.md
+    
+  antigravity:
+    config_root: ~/.gemini/antigravity/
+    agent_file: ~/.gemini/antigravity/AGENTS.md
+    skills: ~/.gemini/antigravity/skills/
+    project_agent_file: AGENTS.md
+
+# Path expansion rules:
+# - ~ expands to user home directory
+# - Paths ending with / are directories
+# - agent_file is the global/user-level output file for agent recipes
+# - project_agent_file is the filename used in project directories (~/path/to/project/{filename})
+# - skills is the base directory for skill installations
+# 
+# Project-specific agent files:
+# - Claude Code & Cursor use CLAUDE.md in project root
+# - All others use AGENTS.md in project root

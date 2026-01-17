@@ -1,7 +1,7 @@
 ---
 created: 2026-01-11 09:52:44.314556
 id: recipe-manifest
-modified: '2026-01-16T20:35:32.955469'
+modified: '2026-01-17T01:03:05.598533'
 status: log
 type:
 - log
@@ -10,40 +10,60 @@ type:
 # Recipe Assembly Log
 
 ## Active Recipes
-- **agent/Claude/CLAUDE**: Last run 2026-01-16T20:35:32.877643
+- **agent/Consensus/consensus**: Last run 2026-01-17T01:03:05.576332
+  - Output: `agent\Consensus\consensus`
+  - Target: `C:\Users\synta.ZK-ZRRH\.dev\consensus`
+  - Status: ✓ assembled
+
+- **agent/Gemini CLI/AGENTS**: Last run 2026-01-17T01:03:05.519592
+  - Output: `agent\Gemini CLI\AGENTS.md`
+  - Target: `C:\Users\synta.ZK-ZRRH\.gemini\AGENTS.md`
+  - Status: ✓ assembled
+
+- **agent/Cursor/AGENTS**: Last run 2026-01-17T01:03:05.509465
+  - Output: `agent\Cursor\AGENTS.md`
+  - Target: `C:\Users\synta.ZK-ZRRH\.cursor\AGENTS.md`
+  - Status: ✓ assembled
+
+- **agent/Antigravity/AGENTS**: Last run 2026-01-17T01:03:05.477307
+  - Output: `agent\Antigravity\AGENTS.md`
+  - Target: `C:\Users\synta.ZK-ZRRH\.antigravity\AGENTS.md`
+  - Status: ✓ assembled
+
+- **agent/Claude/CLAUDE**: Last run 2026-01-17T01:03:05.487316
   - Output: `agent\Claude\CLAUDE.md`
   - Target: `C:\Users\synta.ZK-ZRRH\.claude\CLAUDE.md`
   - Status: ✓ assembled
 
-- **skill/mcp-builder**: Last run 2026-01-16T20:35:32.955469
+- **skill/mcp-builder**: Last run 2026-01-17T01:03:05.598533
   - Output: `skill\mcp-builder\`
   - Target: `C:\Users\synta.ZK-ZRRH\.claude\skills\mcp-builder\`
   - Target: `C:\Users\synta.ZK-ZRRH\.codex\skills\mcp-builder\`
   - Status: ✓ assembled
 
-- **power/mcp-builder**: Last run 2026-01-16T20:35:32.934682
+- **power/mcp-builder**: Last run 2026-01-17T01:03:05.568576
   - Output: `power\mcp-builder\`
   - Target: `C:\Users\synta.ZK-ZRRH\.kiro\powers\installed\mcp-builder\`
   - Status: ✓ assembled
 
-- **command/doc-consistency-check/doc-consistency-check**: Last run 2026-01-16T20:35:32.905164
+- **command/doc-consistency-check/doc-consistency-check**: Last run 2026-01-17T01:03:05.539449
   - Output: `command\doc-consistency-check\doc-consistency-check.md`
   - Target: `C:\Users\synta.ZK-ZRRH\.claude\commands\doc-consistency-check.md`
   - Target: `C:\Users\synta.ZK-ZRRH\.codex\prompts\doc-consistency-check.md`
   - Status: ✓ assembled
 
-- **command/doc-consistency-check/doc-consistency-check.kiro**: Last run 2026-01-16T20:35:32.905164
+- **command/doc-consistency-check/doc-consistency-check.kiro**: Last run 2026-01-17T01:03:05.539449
   - Output: `command\doc-consistency-check\doc-consistency-check.kiro.hook`
   - Target: `C:\Users\synta.ZK-ZRRH\.kiro\hooks\doc-consistency-check.kiro.hook`
   - Status: ✓ assembled
 
-- **command/murder/murder**: Last run 2026-01-16T20:35:32.914282
+- **command/murder/murder**: Last run 2026-01-17T01:03:05.548476
   - Output: `command\murder\murder.md`
   - Target: `C:\Users\synta.ZK-ZRRH\.claude\commands\murder.md`
   - Target: `C:\Users\synta.ZK-ZRRH\.codex\prompts\murder.md`
   - Status: ✓ assembled
 
-- **command/murder/murder.kiro**: Last run 2026-01-16T20:35:32.914282
+- **command/murder/murder.kiro**: Last run 2026-01-17T01:03:05.548476
   - Output: `command\murder\murder.kiro.hook`
   - Target: `C:\Users\synta.ZK-ZRRH\.kiro\hooks\murder.kiro.hook`
   - Status: ✓ assembled
@@ -53,33 +73,33 @@ type:
   - Target: `Z:\Documents\.context\AGENTS.md`
   - Status: ✓ synced
 
-- **skill/catppuccin-theming**: Last run 2026-01-16T20:35:32.944517
+- **skill/catppuccin-theming**: Last run 2026-01-17T01:03:05.586217
   - Output: `skill\catppuccin-theming\`
   - Target: `C:\Users\synta.ZK-ZRRH\.claude\skills\catppuccin-theming\`
   - Target: `C:\Users\synta.ZK-ZRRH\.codex\skills\catppuccin-theming\`
   - Status: ✓ assembled
 
-- **power/catppuccin-theming**: Last run 2026-01-16T20:35:32.923919
+- **power/catppuccin-theming**: Last run 2026-01-17T01:03:05.557785
   - Output: `power\catppuccin-theming\`
   - Target: `C:\Users\synta.ZK-ZRRH\.kiro\powers\installed\catppuccin-theming\`
   - Status: ✓ assembled
 
-- **agent/Kiro/agent**: Last run 2026-01-16T20:35:32.896649
+- **agent/Kiro/agent**: Last run 2026-01-17T01:03:05.529842
   - Output: `agent\Kiro\agent.md`
   - Target: `C:\Users\synta.ZK-ZRRH\.kiro\steering\agent.md`
   - Status: ✓ assembled
 
-- **agent/Kiro/operator**: Last run 2026-01-16T20:35:32.896649
+- **agent/Kiro/operator**: Last run 2026-01-17T01:03:05.529842
   - Output: `agent\Kiro\operator.md`
   - Target: `C:\Users\synta.ZK-ZRRH\.kiro\steering\operator.md`
   - Status: ✓ assembled
 
-- **agent/Kiro/principles**: Last run 2026-01-16T20:35:32.896649
+- **agent/Kiro/principles**: Last run 2026-01-17T01:03:05.529842
   - Output: `agent\Kiro\principles.md`
   - Target: `C:\Users\synta.ZK-ZRRH\.kiro\steering\principles.md`
   - Status: ✓ assembled
 
-- **agent/Codex/AGENTS**: Last run 2026-01-16T20:35:32.887512
+- **agent/Codex/AGENTS**: Last run 2026-01-17T01:03:05.498691
   - Output: `agent\Codex\AGENTS.md`
   - Target: `C:\Users\synta.ZK-ZRRH\.codex\AGENTS.md`
   - Status: ✓ assembled

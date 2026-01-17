@@ -15,13 +15,15 @@ output_format: agent
 # Project steering: repack a single vault file (or slice) into AGENTS.md for a repo.
 #
 # Target options:
-# - Directory form (recommended): ends with `/` or `\` → auto-filename
+# - Repo root (relative): path: .
+#   - Auto-generates AGENTS.md in current repo root
+# - Directory form (absolute): ends with `/` or `\` → auto-filename
 #   - Claude targets become CLAUDE.md (only under ~/.claude)
 #   - everything else becomes AGENTS.md
-# - File form: point directly at .../AGENTS.md to force the name
+# - File form (absolute): point directly at .../AGENTS.md to force the name
 
 target_locations:
-  - path: /absolute/path/to/project/root/
+  - path: .  # Current repo root (only supported relative path)
 
 sources:
   # Whole-file inclusion (simplest)

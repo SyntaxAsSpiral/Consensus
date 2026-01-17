@@ -115,13 +115,24 @@ def _extract_yaml_block(md_content: str) -> Optional[str]:
     return m.group(1)
 
 
-def _expand_target_path(p: str) -> str:
+def _expand_target_path(p: str, base_path: Optional[Path] = None) -> str:
     # Expand "~/" while preserving trailing separators (directory targets).
     trailing_sep = p.endswith("/") or p.endswith("\\")
+    
+    # Handle home directory expansion
     if p.startswith("~/") or p.startswith("~\\"):
         remainder = p[2:]
         remainder = remainder.replace("/", os.sep).replace("\\", os.sep)
         expanded = str(Path.home() / remainder)
+        if trailing_sep and not expanded.endswith(os.sep):
+            expanded += os.sep
+        return expanded
+    
+    # Handle current repo root (.) - only valid for project steering recipes
+    if p == "." or p == "./" or p == ".\\":
+        if base_path is None:
+            raise ValueError("Relative path '.' requires base_path context")
+        expanded = str(base_path)
         if trailing_sep and not expanded.endswith(os.sep):
             expanded += os.sep
         return expanded
@@ -150,8 +161,29 @@ def _is_dir_target_string(p: str) -> bool:
     return p.endswith("/") or p.endswith("\\")
 
 
-def _default_agent_filename_for_target(target_path: str) -> str:
-    # Claude consumes CLAUDE.md; everyone else consumes AGENTS.md.
+def _load_agent_paths(workshop_dir: Path) -> Dict[str, Any]:
+    """Load agent path registry from agent-paths.yaml."""
+    paths_file = workshop_dir / "agent-paths.yaml"
+    if not paths_file.exists():
+        return {}
+    try:
+        with open(paths_file, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+            return data.get("agents", {}) if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def _default_agent_filename_for_target(target_path: str, agent_paths: Optional[Dict[str, Any]] = None) -> str:
+    # Use agent-paths.yaml registry if available
+    if agent_paths:
+        np = _norm_path_str(target_path)
+        for agent_name, paths in agent_paths.items():
+            config_root = paths.get("config_root", "")
+            if config_root and _norm_path_str(config_root) in np:
+                return paths.get("project_agent_file", "AGENTS.md")
+    
+    # Fallback: Claude consumes CLAUDE.md; everyone else consumes AGENTS.md.
     return "CLAUDE.md" if _is_claude_target(target_path) else "AGENTS.md"
 
 
@@ -235,18 +267,18 @@ def _update_kiro_power_registry(power_name: str, install_path: Path, dry_run: bo
         print(f"|001101|—|000000|—|111000|— registry update severed")
 
 
-def _targets_from_config(cfg: Dict[str, Any]) -> List[str]:
+def _targets_from_config(cfg: Dict[str, Any], base_path: Path) -> List[str]:
     targets = cfg.get("target_locations") or []
     resolved: List[str] = []
 
     if isinstance(targets, list):
         for t in targets:
             if isinstance(t, dict) and t.get("path"):
-                resolved.append(str(t["path"]))
+                resolved.append(_expand_target_path(str(t["path"]), base_path))
             elif isinstance(t, str):
-                resolved.append(t)
+                resolved.append(_expand_target_path(t, base_path))
     elif isinstance(targets, str):
-        resolved.append(targets)
+        resolved.append(_expand_target_path(targets, base_path))
 
     return [p for p in resolved if p]
 
@@ -327,7 +359,7 @@ def parse_recipe_sections(recipe_path: Path) -> Optional[List[RecipeSection]]:
         return None
 
 
-def build_sync_items_from_sections(sections: List[RecipeSection]) -> List[SyncItem]:
+def build_sync_items_from_sections(sections: List[RecipeSection], base_path: Path) -> List[SyncItem]:
     if not sections:
         return []
 
@@ -348,7 +380,7 @@ def build_sync_items_from_sections(sections: List[RecipeSection]) -> List[SyncIt
         cfg = section.config
         name = str(cfg.get("name") or section.recipe_file.stem)
         fmt = str(cfg.get("output_format") or "agent").strip().lower()
-        targets = _targets_from_config(cfg)
+        targets = _targets_from_config(cfg, base_path)
 
         if fmt == "agent":
             filename = _agent_output_filename(name, section, total_sections)
@@ -403,7 +435,7 @@ def build_sync_items_from_sections(sections: List[RecipeSection]) -> List[SyncIt
                         deployment_id=dep,
                         source_relpath=rel,
                         source_is_dir=False,
-                        targets=[_expand_target_path(t) for t in md_targets],
+                        targets=[t for t in md_targets],
                     )
                 )
 
@@ -416,7 +448,7 @@ def build_sync_items_from_sections(sections: List[RecipeSection]) -> List[SyncIt
                         deployment_id=dep,
                         source_relpath=rel,
                         source_is_dir=False,
-                        targets=[_expand_target_path(t) for t in hook_targets],
+                        targets=[t for t in hook_targets],
                     )
                 )
 
@@ -681,7 +713,9 @@ def main():
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
     args = parser.parse_args()
 
-    base_path = Path("Z:/Documents/.context")
+    # Set up paths relative to script location
+    script_dir = Path(__file__).parent
+    base_path = script_dir.parent.parent  # Context workspace root (two levels up from src/)
     workshop_dir = base_path / "workshop"
     staging_dir = workshop_dir / "staging"
     manifest_path = workshop_dir / "recipe-manifest.md"
@@ -709,7 +743,7 @@ def main():
         sections = parse_recipe_sections(recipe_path)
         if not sections:
             continue
-        items = build_sync_items_from_sections(sections)
+        items = build_sync_items_from_sections(sections, base_path)
         for item in items:
             current_items[item.deployment_id] = item
             current_deployments[item.deployment_id] = item.targets

@@ -64,13 +64,24 @@ def _configure_stdio_utf8() -> None:
         pass
 
 
-def _expand_target_path(p: str) -> str:
+def _expand_target_path(p: str, base_path: Optional[Path] = None) -> str:
     # Expand "~/" while preserving trailing separators (directory targets).
     trailing_sep = p.endswith("/") or p.endswith("\\")
+    
+    # Handle home directory expansion
     if p.startswith("~/") or p.startswith("~\\"):
         remainder = p[2:]
         remainder = remainder.replace("/", os.sep).replace("\\", os.sep)
         expanded = str(Path.home() / remainder)
+        if trailing_sep and not expanded.endswith(os.sep):
+            expanded += os.sep
+        return expanded
+    
+    # Handle current repo root (.) - only valid for project steering recipes
+    if p == "." or p == "./" or p == ".\\":
+        if base_path is None:
+            raise ValueError("Relative path '.' requires base_path context")
+        expanded = str(base_path)
         if trailing_sep and not expanded.endswith(os.sep):
             expanded += os.sep
         return expanded
@@ -100,8 +111,29 @@ def _is_dir_target_string(p: str) -> bool:
     return p.endswith("/") or p.endswith("\\")
 
 
-def _default_agent_filename_for_target(target_path: str) -> str:
-    # Claude consumes CLAUDE.md; everyone else consumes AGENTS.md.
+def _load_agent_paths(workshop_dir: Path) -> Dict[str, Any]:
+    """Load agent path registry from agent-paths.yaml."""
+    paths_file = workshop_dir / "agent-paths.yaml"
+    if not paths_file.exists():
+        return {}
+    try:
+        with open(paths_file, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+            return data.get("agents", {}) if isinstance(data, dict) else {}
+    except Exception:
+        return {}
+
+
+def _default_agent_filename_for_target(target_path: str, agent_paths: Optional[Dict[str, Any]] = None) -> str:
+    # Use agent-paths.yaml registry if available
+    if agent_paths:
+        np = _norm_path_str(target_path)
+        for agent_name, paths in agent_paths.items():
+            config_root = paths.get("config_root", "")
+            if config_root and _norm_path_str(config_root) in np:
+                return paths.get("project_agent_file", "AGENTS.md")
+    
+    # Fallback: Claude consumes CLAUDE.md; everyone else consumes AGENTS.md.
     return "CLAUDE.md" if _is_claude_target(target_path) else "AGENTS.md"
 
 
@@ -355,7 +387,7 @@ def _read_source_bytes(source: Dict[str, Any], base_path: Path) -> Optional[byte
     return None
 
 
-def _agent_output_filename(recipe_name: str, section: RecipeSection, total_sections: int) -> str:
+def _agent_output_filename(recipe_name: str, section: RecipeSection, total_sections: int, base_path: Path, agent_paths: Optional[Dict[str, Any]] = None) -> str:
     cfg = section.config
     explicit = cfg.get("output_name")
     if explicit:
@@ -365,14 +397,14 @@ def _agent_output_filename(recipe_name: str, section: RecipeSection, total_secti
     if isinstance(targets, list) and len(targets) == 1:
         t = targets[0]
         if isinstance(t, dict) and t.get("path"):
-            p = _expand_target_path(str(t["path"]))
+            p = _expand_target_path(str(t["path"]), base_path)
             if _is_dir_target_string(str(t["path"])):
-                return _default_agent_filename_for_target(p)
+                return _default_agent_filename_for_target(p, agent_paths)
             return Path(p).name or f"{recipe_name}.md"
         elif isinstance(t, str):
-            expanded = _expand_target_path(t)
+            expanded = _expand_target_path(t, base_path)
             if _is_dir_target_string(t):
-                return _default_agent_filename_for_target(expanded)
+                return _default_agent_filename_for_target(expanded, agent_paths)
             return Path(expanded).name or f"{recipe_name}.md"
 
     # Multi-target or ambiguous: fall back to a stable per-section filename.
@@ -383,23 +415,23 @@ def _agent_output_filename(recipe_name: str, section: RecipeSection, total_secti
     return f"{safe_suffix}.md"
 
 
-def _targets_from_section(section: RecipeSection) -> List[str]:
+def _targets_from_section(section: RecipeSection, base_path: Path) -> List[str]:
     targets = section.config.get("target_locations") or []
     resolved: List[str] = []
 
     if isinstance(targets, list):
         for t in targets:
             if isinstance(t, dict) and t.get("path"):
-                resolved.append(_expand_target_path(str(t["path"])))
+                resolved.append(_expand_target_path(str(t["path"]), base_path))
             elif isinstance(t, str):
-                resolved.append(_expand_target_path(t))
+                resolved.append(_expand_target_path(t, base_path))
     elif isinstance(targets, str):
-        resolved.append(_expand_target_path(targets))
+        resolved.append(_expand_target_path(targets, base_path))
 
     return [p for p in resolved if p]
 
 
-def build_output_artifacts(section: RecipeSection, base_path: Path, staging_dir: Path, dry_run: bool) -> List[OutputArtifact]:
+def build_output_artifacts(section: RecipeSection, base_path: Path, staging_dir: Path, dry_run: bool, agent_paths: Optional[Dict[str, Any]] = None) -> List[OutputArtifact]:
     cfg = section.config
     recipe_name = str(cfg.get("name") or section.recipe_file.stem)
     output_format = str(cfg.get("output_format") or "agent").strip().lower()
@@ -419,7 +451,7 @@ def build_output_artifacts(section: RecipeSection, base_path: Path, staging_dir:
 
         # Determine filename with optional disambiguation.
         total_sections = int(cfg.get("_total_sections", 1))
-        filename = _agent_output_filename(recipe_name, section, total_sections)
+        filename = _agent_output_filename(recipe_name, section, total_sections, base_path, agent_paths)
 
         dis = cfg.get("_agent_disambiguator")
         if dis:
@@ -430,14 +462,13 @@ def build_output_artifacts(section: RecipeSection, base_path: Path, staging_dir:
         out_path = staging_dir / "agent" / recipe_name / filename
         _write_text(out_path, content + "\n", dry_run)
 
-        targets = _targets_from_section(section)
+        targets = _targets_from_section(section, base_path)
         resolved_targets: List[str] = []
         for t in targets:
             if _is_dir_target_string(t):
-                base_t = _expand_target_path(t)
-                resolved_targets.append(str(Path(base_t) / _default_agent_filename_for_target(base_t)))
+                resolved_targets.append(str(Path(t) / _default_agent_filename_for_target(t, agent_paths)))
             else:
-                resolved_targets.append(_expand_target_path(t))
+                resolved_targets.append(t)
 
         return [
             OutputArtifact(
@@ -458,7 +489,7 @@ def build_output_artifacts(section: RecipeSection, base_path: Path, staging_dir:
 
         skill_name = recipe_name
         out_root = staging_dir / "skill" / skill_name
-        targets = _targets_from_section(section)
+        targets = _targets_from_section(section, base_path)
 
         # SKILL.md generation
         skill_md_cfg = sources_cfg.get("skill_md") or {}
@@ -609,7 +640,7 @@ def build_output_artifacts(section: RecipeSection, base_path: Path, staging_dir:
             OutputArtifact(
                 relpath=(Path("power") / power_name).as_posix(),
                 abspath=power_root,
-                targets=_targets_from_section(section),
+                targets=_targets_from_section(section, base_path),
                 is_dir=True,
             )
         ]
@@ -622,8 +653,7 @@ def build_output_artifacts(section: RecipeSection, base_path: Path, staging_dir:
             print(f"|001101|—|000000|—|111000|— void communion")
             return []
 
-        raw_targets = _targets_from_section(section)
-        targets = [_expand_target_path(t) for t in raw_targets]
+        targets = _targets_from_section(section, base_path)
 
         hook_targets = [t for t in targets if _is_kiro_hook_target(t)]
         md_targets = [t for t in targets if t not in hook_targets]
@@ -803,8 +833,9 @@ def main():
     parser.add_argument('--verbose', action='store_true', help='Verbose output')
     args = parser.parse_args()
     
-    # Set up absolute paths
-    base_path = Path("Z:/Documents/.context")  # Context workspace root
+    # Set up paths relative to script location
+    script_dir = Path(__file__).parent
+    base_path = script_dir.parent.parent  # Context workspace root (two levels up from src/)
     workshop_dir = base_path / "workshop"      # Workshop directory
     staging_dir = workshop_dir / "staging"     # Staging directory
     manifest_path = workshop_dir / "recipe-manifest.md"  # Manifest file
@@ -818,6 +849,9 @@ def main():
     # Ensure staging directory exists
     if not args.dry_run:
         staging_dir.mkdir(exist_ok=True)
+    
+    # Load agent path registry
+    agent_paths = _load_agent_paths(workshop_dir)
     
     # Find and process recipe files
     recipe_files = find_recipe_files(workshop_dir)
@@ -854,7 +888,7 @@ def main():
             if fmt != "agent":
                 continue
             recipe_name = str(cfg.get("name") or recipe_path.stem)
-            filename = _agent_output_filename(recipe_name, section, len(sections))
+            filename = _agent_output_filename(recipe_name, section, len(sections), base_path, agent_paths)
             agent_name_counts[filename] = agent_name_counts.get(filename, 0) + 1
 
         artifacts: List[OutputArtifact] = []
@@ -866,13 +900,13 @@ def main():
             fmt = str(section_cfg.get("output_format") or "agent").strip().lower()
             if fmt == "agent":
                 recipe_name = str(section_cfg.get("name") or recipe_path.stem)
-                filename = _agent_output_filename(recipe_name, section, total_sections)
+                filename = _agent_output_filename(recipe_name, section, total_sections, base_path, agent_paths)
                 if agent_name_counts.get(filename, 0) > 1:
                     section_cfg["_agent_disambiguator"] = f"section{section.index + 1}"
 
             section = RecipeSection(recipe_file=section.recipe_file, index=section.index, config=section_cfg)
 
-            built = build_output_artifacts(section, base_path, staging_dir, args.dry_run)
+            built = build_output_artifacts(section, base_path, staging_dir, args.dry_run, agent_paths)
             artifacts.extend(built)
 
         if not artifacts:
