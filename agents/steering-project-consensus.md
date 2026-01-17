@@ -51,7 +51,6 @@ Example prompt templates for different cognitive modes.
 ### `/artifacts/` - Visual Models
 Obsidian Canvas files for visual modeling.
 
-
 ### `/workshop/` - Assembly System
 Recipe-based system for assembling and deploying context.
 
