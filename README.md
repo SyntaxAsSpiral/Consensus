@@ -1,24 +1,25 @@
-# Context Vault Template
+# 🧩 Consensus
 
-A template for building AI agent context systems using Obsidian and a recipe-based assembly workflow.
+**Context vault assembly workshop** for building AI agent context systems.<br>
+*[Template]* A recipe-based workflow for deploying agent configurations, skills, and prompts across multiple AI platforms. The reference implementation is [zk-context-vault](https://github.com/SyntaxAsSpiral/zk-context-vault).
 
-> **Reference Implementation**: See [zk-context-vault](https://github.com/SyntaxAsSpiral/zk-context-vault) for a working example with real content.
+## 🔗 Concept
 
-## Quick Start
+Consensus provides a structured approach to managing AI agent context:
+- **Write once, deploy everywhere**: Create content in one place, assemble into multiple formats
+- **Recipe-based assembly**: Define what goes where using declarative recipes
+- **Multi-platform support**: Deploy to Kiro, Claude, custom agents, or MCP servers
+- **Standards-compliant**: Follows Agent Skills and Kiro Powers specifications
 
-### 1. Clone and Open
+The system uses Obsidian as the authoring environment and Python scripts for assembly and deployment.
 
-```bash
-git clone <your-repo-url>
-cd context-vault-template
-```
+## 🚧 Current Status
 
-Open the folder in Obsidian:
-- Launch Obsidian
-- Click "Open folder as vault"
-- Select the `context-vault-template` directory
+**Template repository.** This is a clean starting point for building your own context vault. For a working example with real content, see [zk-context-vault](https://github.com/SyntaxAsSpiral/zk-context-vault).
 
-### 2. What's Inside
+## 🎯 Architecture
+
+### Directory Structure
 
 ```
 agents/          # Agent configurations and steering rules
@@ -29,28 +30,17 @@ workshop/        # Assembly system for deploying context
   src/           # Python scripts (assemble.py, sync.py)
   templates/     # Recipe templates
   recipe-*.md    # Active recipes
+  staging/       # Generated outputs (gitignored)
 ```
 
-### 3. How It Works
+### Workflow
 
-**Write once, deploy everywhere:**
-
-1. **Create content** in `agents/`, `skills/`, `prompts/`
-2. **Write recipes** in `workshop/` to define what goes where
+1. **Author content** in `agents/`, `skills/`, `prompts/` using Obsidian
+2. **Write recipes** in `workshop/` to define assembly targets
 3. **Run assembly** to generate outputs in `workshop/staging/`
 4. **Run sync** to deploy to target locations (like `~/.kiro/`, `~/.claude/`)
 
-### 4. Basic Workflow
-
-```bash
-# Assemble recipes into staging
-python workshop/src/assemble.py
-
-# Deploy staging to targets
-python workshop/src/sync.py
-```
-
-## Key Concepts
+## 🔗 Key Concepts
 
 ### Recipes
 
@@ -83,21 +73,61 @@ Kiro Powers package skills with steering files:
 - `steering/` - Additional guides
 - `mcp.json` - Optional MCP server config
 
-## Customization
+## 🎮 Usage
 
-1. **Replace example content** with your own
-2. **Update paths** in `workshop/src/assemble.py` and `sync.py`
+### Setup
+
+```bash
+# Clone this template
+git clone <your-fork-url>
+cd consensus
+
+# Open in Obsidian
+# Launch Obsidian → "Open folder as vault" → Select consensus directory
+```
+
+### Basic Workflow
+
+```bash
+# Assemble recipes into staging
+python workshop/src/assemble.py
+
+# Deploy staging to targets
+python workshop/src/sync.py
+```
+
+### Customization
+
+1. **Replace example content** with your own agents, skills, and prompts
+2. **Update paths** in `workshop/src/assemble.py` and `sync.py` for your environment
 3. **Create recipes** for your deployment targets
 4. **Run the workflow** to deploy
 
-## Requirements
-
-- Python 3.8+
-- Obsidian (optional, but recommended)
-- Git
-
-## Learn More
+## 📚 Learn More
 
 - Check `workshop/templates/` for recipe examples
 - See `skills/spec-agent-skill.md` for skill format
 - See `skills/spec-kiro-power.md` for power format
+- Review [zk-context-vault](https://github.com/SyntaxAsSpiral/zk-context-vault) for a working implementation
+
+## Requirements
+
+- Python 3.8+
+- Obsidian (optional, but recommended for authoring)
+- Git
+
+## ⚠️ Development Warning
+
+This is a template for personal context systems. Customize paths and content for your environment.
+
+## Contributing
+
+Issues and PRs welcome! This is an exploration of context-first AI workflows.
+
+## License
+
+Private research tool - not for distribution.
+
+---
+
+*Context as compiled substrate, recipes as assembly instructions 🜍*
