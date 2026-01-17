@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Documentation Consistency Checker",
+  "description": "Searches all markdown files for terminology drift against canonical sources (.kiro/specs/*, AGENTS.md, README.md), checks consistency across all documentation, and automatically updates any inconsistencies found",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "The user has requested a documentation consistency check. Please:\n\n1. Check recent commits for context on terminology changes\n\n2. Identify canonical sources for this project/workspace:\n   - .kiro/specs/* (requirements.md, design.md, tasks.md)\n   - AGENTS.md (project steering at repo root)\n   - README.md (project overview)\n\n3. Search all markdown files in the project for drift in terminology, architecture, or other details (compare against canonical sources)\n\n4. Check these specific files for consistency:\n   - .kiro/* (all files in .kiro directory)\n   - ALL AGENTS.md files (search recursively)\n   - ALL README.md files (search recursively)\n   - Any code files with relevant comments or docstrings\n\n5. Report findings in a structured way:\n   - List files that contain outdated terminology\n   - Show the specific lines and suggested replacements based on canonical sources\n   - Indicate if terminology is consistent across all docs\n\n6. Automatically update any inconsistencies found. Leave no trace. 🚮\n\nFocus on terminology consistency, architectural descriptions (validate against .kiro/specs/*/design.md), feature descriptions (validate against .kiro/specs/*/requirements.md), and any references that may have drifted between files."
+  },
+  "shortName": "doc-consistency-check"
+}

@@ -1,0 +1,23 @@
+{
+	"nodes":[
+		{"id":"745257fa3a0007cc","x":-580,"y":-630,"width":1330,"height":380,"color":"6","type":"group","label":"Source templates"},
+		{"id":"aad5e099ad602f61","x":-360,"y":120,"width":945,"height":380,"color":"4","type":"group","label":"Sync targets"},
+		{"id":"73cded82f9c2597b","type":"text","text":"## Workshop\n\n- assemble\n- check staging\n- sync","x":-20,"y":-195,"width":250,"height":155,"color":"#74c7ec"},
+		{"id":"249682a4cb538b98","type":"text","text":"## Skills\n- mcp-builder\n- catpuccin-theming","x":-560,"y":-470,"width":250,"height":160,"color":"#a6e3a1"},
+		{"id":"125e0a17e52b254c","type":"text","text":"## Prompts\n- bedtime\n- murder\n- moeverse\n- and more!","x":480,"y":-470,"width":250,"height":200,"color":"#cba6f7"},
+		{"id":"731cb941eb4ba5ba","type":"text","text":"## Artifacts\n- This Canvas","x":190,"y":-430,"width":250,"height":120,"color":"#cba6f7"},
+		{"id":"8f2a7f6f394b0c2c","type":"text","text":"## Agents\n\n- Claude\n- Codex\n- Kiro\n- Grok\n","x":-270,"y":-530,"width":250,"height":220,"color":"#b4befe"},
+		{"id":"5202e529dc1ff15d","type":"text","text":"## Global Config Locations\n\n- `~/.kiro/steering/*.md`\n- `~/.claude/CLAUDE.md`\n- `~/.claude/commands/*.md`\n- `~/.codex/AGENTS.md`\n- `~/.codex/prompts/*.md`","x":-340,"y":140,"width":250,"height":340,"color":"#fab387"},
+		{"id":"da00eb29808cd4bc","type":"text","text":"## Project Config Locations\n\n- `.kiro/steering/*.md`\n- `.kiro/hooks/*.kiro.hook`\n- `.kiro/specs/*/`\n- `AGENTS.md` (repo root)","x":-20,"y":140,"width":250,"height":280,"color":"#f9e2af"},
+		{"id":"8c698556df15c099","type":"text","text":"## Skill/Power Config Locations\n\n- `~/.kiro/powers/installed/*/`\n- `~/.claude/skills/*/`\n- `~/.codex/skills/*/`","x":315,"y":140,"width":250,"height":280,"color":"#f38ba8"}
+	],
+	"edges":[
+		{"id":"372a2906e9c367c7","fromNode":"249682a4cb538b98","fromSide":"bottom","toNode":"73cded82f9c2597b","toSide":"left","color":"#a6e3a1"},
+		{"id":"7d11a8a2b1b31ccc","fromNode":"8f2a7f6f394b0c2c","fromSide":"right","toNode":"73cded82f9c2597b","toSide":"top","color":"#b4befe"},
+		{"id":"6cbcd0a11add83cb","fromNode":"731cb941eb4ba5ba","fromSide":"left","toNode":"73cded82f9c2597b","toSide":"top","color":"#cba6f7"},
+		{"id":"6d48861ef80f56c6","fromNode":"125e0a17e52b254c","fromSide":"bottom","toNode":"73cded82f9c2597b","toSide":"right","color":"#cba6f7"},
+		{"id":"83c1b0e84f1e611a","fromNode":"73cded82f9c2597b","fromSide":"bottom","toNode":"5202e529dc1ff15d","toSide":"top","color":"#fab387"},
+		{"id":"94d79b5af35bf74d","fromNode":"73cded82f9c2597b","fromSide":"bottom","toNode":"da00eb29808cd4bc","toSide":"top","color":"#f9e2af"},
+		{"id":"0faadf5a11c40646","fromNode":"73cded82f9c2597b","fromSide":"bottom","toNode":"8c698556df15c099","toSide":"top","color":"#f38ba8"}
+	]
+}
